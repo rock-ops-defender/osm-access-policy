@@ -1,0 +1,64 @@
+kind: TCPRoute
+metadata:
+  name: {{ .Values.tcpRoute.name }}
+spec:
+  matches:
+    ports:
+    - {{ .Values.tcpRoute.ports }}
+---
+kind: HTTPRouteGroup
+metadata:
+  name: {{ .Values.httpRouteGroup.name }}
+spec:
+  matches:
+  - name: api
+    pathRegex: {{ .Values.httpRouteGroup.apiPathRegex }}
+    methods: {{ .Values.httpRouteGroup.apiMethods }}
+  - name: metrics
+    pathRegex: {{ .Values.httpRouteGroup.metricsPathRegex }}
+    methods: {{ .Values.httpRouteGroup.metricsMethods }}
+---
+kind: TrafficTarget
+metadata:
+  name: {{ .Values.trafficTarget.metricsName }}
+  namespace: {{ .Values.trafficTarget.namespace }}
+spec:
+  destination:
+    kind: ServiceAccount
+    name: {{ .Values.trafficTarget.destinationServiceAccount.name }}
+    namespace: {{ .Values.trafficTarget.destinationServiceAccount.namespace }}
+  rules:
+  - kind: TCPRoute
+    name: {{ .Values.tcpRoute.name }}
+  - kind: HTTPRouteGroup
+    name: {{ .Values.httpRouteGroup.name }}
+    matches:
+    - metrics
+  sources:
+  - kind: ServiceAccount
+    name: {{ .Values.trafficTarget.sourceServiceAccount.prometheusName }}
+    namespace: {{ .Values.trafficTarget.sourceServiceAccount.namespace }}
+---
+kind: TrafficTarget
+metadata:
+  name: {{ .Values.trafficTarget.apiName }}
+  namespace: {{ .Values.trafficTarget.namespace }}
+spec:
+  destination:
+    kind: ServiceAccount
+    name: {{ .Values.trafficTarget.destinationServiceAccount.name }}
+    namespace: {{ .Values.trafficTarget.destinationServiceAccount.namespace }}
+  rules:
+  - kind: TCPRoute
+    name: {{ .Values.tcpRoute.name }}
+  - kind: HTTPRouteGroup
+    name: {{ .Values.httpRouteGroup.name }}
+    matches:
+    - api
+  sources:
+  - kind: ServiceAccount
+    name: {{ .Values.trafficTarget.sourceServiceAccount.websiteName }}
+    namespace: {{ .Values.trafficTarget.sourceServiceAccount.namespace }}
+  - kind: ServiceAccount
+    name: {{ .Values.trafficTarget.sourceServiceAccount.paymentsName }}
+    namespace: {{ .Values.trafficTarget.sourceServiceAccount.namespace }}

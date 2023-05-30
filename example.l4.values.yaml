@@ -1,0 +1,21 @@
+tcpRoute:
+  name: tcp-ports
+  ports:
+    - 8301
+    - 8302
+    - 8300
+
+udpRoute:
+  name: udp-ports
+  ports:
+    - 8301
+    - 8302
+
+trafficTarget:
+  name: protocol-specific
+  destinationServiceAccount:
+    name: server
+    namespace: default
+  sourceServiceAccount:
+    name: client
+    namespace: default
