@@ -1,0 +1,36 @@
+kind: TCPRoute
+metadata:
+  name: {{ .Values.tcpRoute.name }}
+spec:
+  matches:
+    ports:
+    - {{ .Values.tcpRoute.ports }}
+    - {{ .Values.tcpRoute.ports }}
+    - {{ .Values.tcpRoute.ports }}
+---
+kind: UDPRoute
+metadata:
+  name: {{ .Values.udpRoute.name }}
+spec:
+  matches:
+    ports:
+    - {{ .Values.udpRoute.ports }}
+    - {{ .Values.udpRoute.ports }}
+---
+kind: TrafficTarget
+metadata:
+  name: {{ .Values.trafficTarget.name }}
+spec:
+  destination:
+    kind: ServiceAccount
+    name: {{ .Values.trafficTarget.destinationServiceAccount.applicationName }}
+    namespace: {{ .Values.trafficTarget.destinationServiceAccount.namespace }}
+  rules:
+  - kind: TCPRoute
+    name: {{ .Values.tcpRoute.name }}
+  - kind: UDPRoute
+    name: {{ .Values.udpRoute.name }}
+  sources:
+  - kind: ServiceAccount
+    name: {{ .Values.trafficTarget.sourceServiceAccount.name }}
+    namespace: {{ .Values.trafficTarget.sourceServiceAccount.namespace }}
